@@ -1,0 +1,35 @@
+﻿apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: triarbapi
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: triarbapi
+  template:
+    metadata:
+      labels:
+        app: triarbapi
+    spec:
+      terminationGracePeriodSeconds: 30
+      containers:
+      - name: triarbapi
+        image: orbit.azurecr.io/triarbmarkets/triarbapi:latest
+        imagePullPolicy: "Always"
+        volumeMounts:
+        - name: secrets
+          mountPath: "/mnt/secrets-store"
+          readOnly: true
+        resources:
+            requests:
+                memory: "250M"
+            limits:
+                memory: "500M"
+      volumes:
+        - name: secrets
+          csi:
+            driver: secrets-store.csi.k8s.io
+            readOnly: true
+            volumeAttributes:
+              secretProviderClass: triarbmarkets
